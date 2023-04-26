@@ -8,6 +8,7 @@ import 'package:twitter_clone/presentation/router/router.dart';
 import 'package:twitter_clone/presentation/widgets/asset_image.dart';
 import 'package:twitter_clone/presentation/widgets/auth_textfield.dart';
 import 'package:twitter_clone/presentation/widgets/rounded_button.dart';
+import 'package:twitter_clone/presentation/widgets/small_progress_indicator.dart';
 import 'package:twitter_clone/utils/utils.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -61,11 +62,10 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void onTapDone() {
-    log("calling function");
     if (checkIfValid()) {
       final email = emailController.text.trim();
       final password = passwordController.text.trim();
-      log("called login");
+
       context.read<AuthBloc>().add(LoginUser(
             email: email,
             password: password,
@@ -85,58 +85,74 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Palette.backgroundColor,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(kToolbarHeight),
-        child: LoginAppBarWidget(),
-      ),
-      body: Padding(
-        padding: AppPadding.largeScreenPadding,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CommonAuthTextFieldWidget(
-              label: "Email Address",
-              controller: emailController,
-              focusNode: emailNode,
-            ),
-            WhiteSpace.gapH25,
-            CommonAuthTextFieldWidget(
-              label: "Email Address",
-              controller: passwordController,
-              focusNode: passwordNode,
-            ),
-            const SizedBox(height: 35),
-            Align(
-              alignment: Alignment.centerRight,
-              child: RoundedButtonWidget(
-                onTap: onTapDone,
-                title: "Done",
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is AuthSuccess) {
+          AppNavigator.pushReplacement(
+              context: context, screenName: AppRouter.HOME_SCREEN);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Palette.backgroundColor,
+        appBar: const PreferredSize(
+          preferredSize: Size.fromHeight(kToolbarHeight),
+          child: LoginAppBarWidget(),
+        ),
+        body: Padding(
+          padding: AppPadding.largeScreenPadding,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CommonAuthTextFieldWidget(
+                label: "Email Address",
+                controller: emailController,
+                focusNode: emailNode,
               ),
-            ),
-            const SizedBox(height: 35),
-            GestureDetector(
-              onTap: onTapSignup,
-              child: Text.rich(
-                TextSpan(
-                    text: "Don't have an account? ",
-                    style: TextStyle(
-                      color: Palette.whiteColor,
-                      fontSize: AppFontSize.bodySmall,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: "Signup",
-                        style: TextStyle(
-                          color: Palette.blueColor,
-                          fontSize: AppFontSize.bodySmall,
-                        ),
-                      )
-                    ]),
+              WhiteSpace.gapH25,
+              CommonAuthTextFieldWidget(
+                label: "Your Password",
+                controller: passwordController,
+                focusNode: passwordNode,
               ),
-            )
-          ],
+              const SizedBox(height: 35),
+              Align(
+                alignment: Alignment.centerRight,
+                child: BlocBuilder<AuthBloc, AuthState>(
+                  builder: (context, state) {
+                    if (state is AuthLoading) {
+                      return const SmallProgressIndication();
+                    }
+
+                    return RoundedButtonWidget(
+                      onTap: onTapDone,
+                      title: "Done",
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 35),
+              GestureDetector(
+                onTap: onTapSignup,
+                child: Text.rich(
+                  TextSpan(
+                      text: "Don't have an account? ",
+                      style: TextStyle(
+                        color: Palette.whiteColor,
+                        fontSize: AppFontSize.bodySmall,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: "Signup",
+                          style: TextStyle(
+                            color: Palette.blueColor,
+                            fontSize: AppFontSize.bodySmall,
+                          ),
+                        )
+                      ]),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

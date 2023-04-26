@@ -1,8 +1,10 @@
 // ignore_for_file: constant_identifier_names
 
 import 'package:flutter/material.dart';
+import 'package:twitter_clone/presentation/screens/home/home_screen.dart';
 import 'package:twitter_clone/presentation/screens/login/login_screen.dart';
 import 'package:twitter_clone/presentation/screens/signup/signup_screen.dart';
+import 'package:twitter_clone/presentation/screens/splash/splash_screen.dart';
 part 'app_navigator.dart';
 
 class AppRouter {
@@ -24,10 +26,14 @@ class AppRouter {
           builder: (context) => const SignUpScreen(),
         );
 
-      // case AUTH_SCREEN:
-      //   return MaterialPageRoute(
-      //     builder: (context) => const AuthScreen(),
-      //   );
+      case HOME_SCREEN:
+        return MaterialPageRoute(
+          builder: (context) => const HomeScreen(),
+        );
+      case SPLASH_SCREEN:
+        return MaterialPageRoute(
+          builder: (context) => const SplashScreen(),
+        );
 
       // case VERIFICATION_SCREEN:
       //   return MaterialPageRoute(

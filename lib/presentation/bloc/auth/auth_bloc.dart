@@ -44,7 +44,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         result.fold((l) {
           emit(AuthError(l));
           _handleAuthError(emit, l, event.context);
-        }, (r) => emit(AuthCreatedUser()));
+        }, (r) {
+          emit(AuthCreatedUser());
+          showCustomSnackBar(event.context,
+              message: "Account Created Successfully");
+        });
       });
     } else {
       _handleInternetError(emit);
