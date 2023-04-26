@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:twitter_clone/presentation/screens/login/login_screen.dart';
+import 'package:twitter_clone/presentation/screens/signup/signup_screen.dart';
 part 'app_navigator.dart';
 
 class AppRouter {
@@ -17,6 +18,10 @@ class AppRouter {
       case LOGIN_SCREEN:
         return MaterialPageRoute(
           builder: (context) => const LoginScreen(),
+        );
+      case SIGNUP_SCREEN:
+        return MaterialPageRoute(
+          builder: (context) => const SignUpScreen(),
         );
 
       // case AUTH_SCREEN:

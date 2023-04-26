@@ -19,7 +19,7 @@ class RoundedButtonWidget extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
       color: backgroundColor,
-      onPressed: () {},
+      onPressed: onTap,
       child: Text(
         "Done",
         style: TextStyle(
