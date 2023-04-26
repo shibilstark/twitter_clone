@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:twitter_clone/config/config.dart';
@@ -11,27 +9,31 @@ import 'package:twitter_clone/presentation/widgets/rounded_button.dart';
 import 'package:twitter_clone/presentation/widgets/small_progress_indicator.dart';
 import 'package:twitter_clone/utils/utils.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _SignUpScreenState extends State<SignUpScreen> {
   late final ValueNotifier<String?> errorStatus;
   late final TextEditingController emailController;
   late final TextEditingController passwordController;
+  late final TextEditingController conformPasswordController;
   late final FocusNode emailNode;
   late final FocusNode passwordNode;
+  late final FocusNode conformPasswordNode;
 
   @override
   void initState() {
     errorStatus = ValueNotifier(null);
     emailController = TextEditingController();
     passwordController = TextEditingController();
+    conformPasswordController = TextEditingController();
     emailNode = FocusNode();
     passwordNode = FocusNode();
+    conformPasswordNode = FocusNode();
     super.initState();
   }
 
@@ -48,13 +50,21 @@ class _LoginScreenState extends State<LoginScreen> {
   bool checkIfValid() {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
+    final confPassword = conformPasswordController.text.trim();
     final isEmailValid = email.isNotEmpty && email.isValidEmail();
     final isPasswordValid = password.isValidPassword();
+    final isConfPasswordValid = password == confPassword;
 
     if (isEmailValid && isPasswordValid) {
-      errorStatus.value = null;
+      if (isConfPasswordValid) {
+        errorStatus.value = null;
+        errorStatus.notifyListeners();
+        return true;
+      }
+
+      errorStatus.value = "Make sure entered passwords are same";
       errorStatus.notifyListeners();
-      return true;
+      return false;
     }
     errorStatus.value = "Credentials format is incorrect";
     errorStatus.notifyListeners();
@@ -66,30 +76,24 @@ class _LoginScreenState extends State<LoginScreen> {
       final email = emailController.text.trim();
       final password = passwordController.text.trim();
 
-      context.read<AuthBloc>().add(LoginUser(
+      context.read<AuthBloc>().add(SignUpUser(
             email: email,
             password: password,
             context: context,
           ));
-    } else {
-      log(errorStatus.value.toString());
     }
   }
 
-  void onTapSignup() {
-    AppNavigator.push(
-      context: context,
-      screenName: AppRouter.SIGNUP_SCREEN,
-    );
+  void onTapLogin() {
+    AppNavigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state is AuthSuccess) {
-          AppNavigator.pushReplacement(
-              context: context, screenName: AppRouter.HOME_SCREEN);
+        if (state is AuthCreatedUser) {
+          AppNavigator.pop(context);
         }
       },
       child: Scaffold(
@@ -104,15 +108,21 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CommonAuthTextFieldWidget(
-                label: "Email Address",
+                label: "Email ",
                 controller: emailController,
                 focusNode: emailNode,
               ),
               WhiteSpace.gapH25,
               CommonAuthTextFieldWidget(
-                label: "Your Password",
+                label: "Password",
                 controller: passwordController,
                 focusNode: passwordNode,
+              ),
+              WhiteSpace.gapH25,
+              CommonAuthTextFieldWidget(
+                label: "Conform Password",
+                controller: conformPasswordController,
+                focusNode: conformPasswordNode,
               ),
               const SizedBox(height: 35),
               Align(
@@ -132,17 +142,17 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 35),
               GestureDetector(
-                onTap: onTapSignup,
+                onTap: onTapLogin,
                 child: Text.rich(
                   TextSpan(
-                      text: "Don't have an account? ",
+                      text: "Already have an account? ",
                       style: TextStyle(
                         color: Palette.whiteColor,
                         fontSize: AppFontSize.bodySmall,
                       ),
                       children: [
                         TextSpan(
-                          text: "Signup",
+                          text: "Login",
                           style: TextStyle(
                             color: Palette.blueColor,
                             fontSize: AppFontSize.bodySmall,
