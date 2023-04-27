@@ -1,13 +1,21 @@
+import 'dart:developer';
+
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:twitter_clone/core/injections/injection_setup.dart';
 import 'package:twitter_clone/core/server/app_server.dart';
 import 'package:twitter_clone/data/auth/auth_db/auth_db.dart';
 import 'package:twitter_clone/domain/app_failure/app_failure.dart';
+import 'package:twitter_clone/domain/app_failure/app_failure_enums.dart';
 import 'package:twitter_clone/domain/auth/auth_repository.dart';
 import 'package:twitter_clone/domain/common_types/type_defs.dart';
 import 'package:twitter_clone/domain/auth/models/auth_model.dart';
 import 'package:appwrite/appwrite.dart';
+import 'package:twitter_clone/domain/user/models/user_model.dart';
+import 'package:twitter_clone/domain/user/user_repository.dart';
+
+import '../../config/config.dart';
 
 @LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
@@ -48,6 +56,38 @@ class AuthRepositoryImpl implements AuthRepository {
         isEmailVerified: user.emailVerification,
       );
 
+      try {
+        await AppServer.databases.getDocument(
+          databaseId: AppWriteConstants.databaseId,
+          collectionId: AppWriteConstants.usersCollection,
+          documentId: user.$id,
+        );
+      } on AppwriteException catch (e) {
+        if (e.code == 404) {
+          final userModel = UserModel(
+            uid: user.$id,
+            name: _getNameFromEmail(email),
+            email: email,
+            bio: "",
+            coverPic: "",
+            profilePic: "",
+            followers: const [],
+            following: const [],
+            isTwitterVerfied: false,
+            tweets: const [],
+          );
+
+          await getIt<UserRepository>()
+              .createUser(userModel)
+              .onError((error, stackTrace) {
+            return const Left(AppFailure(
+              message: "Failed to fetch your account, try again later",
+              type: FailureType.server,
+            ));
+          });
+        }
+      }
+
       final newAuthModel = authModel.copyWith(id: authDb.save(authModel));
 
       return Right(newAuthModel);
@@ -65,11 +105,26 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
   }) async {
     try {
-      await AppServer.account.create(
+      final user = await AppServer.account.create(
         email: email,
         password: password,
         userId: ID.unique(),
       );
+
+      final userModel = UserModel(
+        uid: user.$id,
+        name: _getNameFromEmail(user.email),
+        email: user.email,
+        bio: "",
+        coverPic: "",
+        profilePic: "",
+        followers: const [],
+        following: const [],
+        isTwitterVerfied: false,
+        tweets: const [],
+      );
+
+      await getIt<UserRepository>().createUser(userModel);
 
       return const Right(null);
     } on AppwriteException catch (e) {
@@ -79,6 +134,8 @@ class AuthRepositoryImpl implements AuthRepository {
           kDebugMode ? AppFailure.client(e.toString()) : AppFailure.common());
     }
   }
+
+  String _getNameFromEmail(String email) => email.split("@").first;
 
   @override
   AuthModel? getAuthFromDb() {
