@@ -1,5 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-class UserModel {
+import 'package:equatable/equatable.dart';
+
+class UserModel extends Equatable {
   final String uid;
   final String name;
   final String email;
@@ -11,7 +13,7 @@ class UserModel {
   final bool isTwitterVerfied;
   final List<String> tweets;
 
-  UserModel({
+  const UserModel({
     required this.uid,
     required this.name,
     required this.email,
@@ -81,4 +83,18 @@ class UserModel {
           (map['tweets'] as List<dynamic>).map((e) => e.toString()).toList(),
     );
   }
+
+  @override
+  List<Object?> get props => [
+        name,
+        email,
+        bio,
+        isTwitterVerfied,
+        followers,
+        following,
+        tweets,
+        uid,
+        profilePic,
+        coverPic,
+      ];
 }

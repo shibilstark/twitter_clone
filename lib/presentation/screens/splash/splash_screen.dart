@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:twitter_clone/presentation/bloc/auth/auth_bloc.dart';
+import 'package:twitter_clone/presentation/bloc/user/user_bloc.dart';
 import 'package:twitter_clone/presentation/router/router.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -27,6 +28,8 @@ class _SplashScreenState extends State<SplashScreen> {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthSuccess) {
+          context.read<UserBloc>().add(const GetUser());
+
           AppNavigator.pushReplacement(
               context: context, screenName: AppRouter.HOME_SCREEN);
         }
