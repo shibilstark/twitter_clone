@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:twitter_clone/core/injections/injection_setup.dart';
 import 'package:twitter_clone/domain/app_db/app_db_repository.dart';
 import 'package:twitter_clone/presentation/bloc/auth/auth_bloc.dart';
+import 'package:twitter_clone/presentation/bloc/user/user_bloc.dart';
 import 'package:twitter_clone/presentation/router/router.dart';
 
 void main() async {
@@ -23,7 +24,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: [BlocProvider(create: (context) => getIt<AuthBloc>())],
+      providers: [
+        BlocProvider(create: (context) => getIt<AuthBloc>()),
+        BlocProvider(create: (context) => getIt<UserBloc>()),
+      ],
       child: ScreenUtilInit(
           designSize: const Size(360, 900),
           splitScreenMode: true,

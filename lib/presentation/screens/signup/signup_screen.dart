@@ -95,6 +95,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         if (state is AuthCreatedUser) {
           AppNavigator.pop(context);
         }
+        FocusScope.of(context).unfocus();
       },
       child: Scaffold(
         backgroundColor: Palette.backgroundColor,

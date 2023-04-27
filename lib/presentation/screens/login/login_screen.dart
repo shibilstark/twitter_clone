@@ -91,6 +91,8 @@ class _LoginScreenState extends State<LoginScreen> {
           AppNavigator.pushReplacement(
               context: context, screenName: AppRouter.HOME_SCREEN);
         }
+
+        FocusScope.of(context).unfocus();
       },
       child: Scaffold(
         backgroundColor: Palette.backgroundColor,
